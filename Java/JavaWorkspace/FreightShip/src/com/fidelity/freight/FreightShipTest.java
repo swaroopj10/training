@@ -1,0 +1,139 @@
+package com.fidelity.freight;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.math.BigDecimal;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import java.util.NoSuchElementException;
+
+class FreightShipTest {
+	FreightShip ship;
+	@BeforeEach
+	void setUp() throws Exception {
+		int maxCapacity = 5;
+		ship = new FreightShip(maxCapacity);
+	}
+
+	@AfterEach
+	void tearDown() throws Exception {
+		ship = null;
+	}
+
+	@Test
+	void NotNull() {
+		assertNotNull(ship);
+	}
+	
+	@Test
+	void capacityCannotBeZero() {
+		int maxCapacity = 0;
+		assertThrows(IllegalArgumentException.class, ()-> {
+			ship = new FreightShip(maxCapacity);
+		});
+	}
+	
+	@Test
+	void capacityCannotBeNegative() {
+		int maxCapacity = -2;
+		assertThrows(IllegalArgumentException.class, ()-> {
+			ship = new FreightShip(maxCapacity);
+		});
+	}
+	
+	@Test
+	void maximumCapacity() {
+		CrewMember officer = new Officer("John Doe", 102, 5, "Officer", new BigDecimal("1000"));
+		CrewMember sailor = new Sailor("John Doe", 103, 5, "Day Shift", new BigDecimal("12"), 10);
+		CrewMember captain = new Officer("John", 104, 5, "Captain", new BigDecimal("1000"));
+		CrewMember sailor2 = new Sailor("Jane Doe", 105, 5, "Day Shift", new BigDecimal("12"), 10);
+		CrewMember sailor3 = new Sailor("Jane", 106, 5, "Day Shift", new BigDecimal("12"), 10);
+		CrewMember sailor4 = new Sailor("Andrew", 107, 5, "Day Shift", new BigDecimal("12"), 10);
+		ship.addMember(sailor3);
+		ship.addMember(sailor2);
+		ship.addMember(captain);
+		ship.addMember(sailor);
+		ship.addMember(officer);
+		assertThrows(IllegalStateException.class, ()-> {
+			ship.addMember(sailor4);
+		});
+	}
+	
+	@Test
+	void addingNullMember() {
+		assertThrows(NullPointerException.class, ()-> {
+			ship.addMember(null);
+		});
+	}
+	
+	@Test
+	void crewMemberAdded() {
+		CrewMember officer = new Officer("John Doe", 102, 5, "Captain", new BigDecimal("1000"));
+		ship.addMember(officer);
+		assertEquals(1, ship.getCurrentCrewNumber());
+	}
+	
+	@Test
+	void removingNullMember() {
+		assertThrows(NullPointerException.class, ()-> {
+			ship.removeMember(null);
+		});
+	}
+	
+	@Test
+	void removingNonExistentMember() {
+		CrewMember officer = new Officer("John Doe", 102, 5, "Captain", new BigDecimal("1000"));
+		CrewMember sailor = new Sailor("John Doe", 103, 5, "Day Shift", new BigDecimal("12"), 10);
+		ship.addMember(officer);
+		assertThrows(NoSuchElementException.class, ()-> {
+			ship.removeMember(sailor);
+		});
+	}
+	
+	@Test
+	void crewMemberRemoved() {
+		CrewMember officer = new Officer("John Doe", 102, 5, "Captain", new BigDecimal("1000"));
+		CrewMember sailor = new Sailor("John Doe", 103, 5, "Day Shift", new BigDecimal("12"), 10);
+		ship.addMember(officer);
+		ship.addMember(sailor);
+		ship.removeMember(sailor);
+		assertEquals(1, ship.getCurrentCrewNumber());
+	}
+	
+	@Test
+	void correctMaxCapacity() {
+		int capacity = ship.getMaxCapacity();
+		assertEquals(5, capacity);
+	}
+	
+	@Test
+	void correctRemainingCapacity() {
+		CrewMember officer = new Officer("John Doe", 102, 5, "Captain", new BigDecimal("1000"));
+		ship.addMember(officer);
+		int capacity = ship.getRemainingCapacity();
+		assertEquals(4, capacity);
+	}
+	
+	@Test
+	void correctCurrentCrewSize() {
+		CrewMember officer = new Officer("John Doe", 102, 5, "Captain", new BigDecimal("1000"));
+		CrewMember sailor = new Sailor("John Doe", 103, 5, "Day Shift", new BigDecimal("12"), 10);
+		ship.addMember(officer);
+		ship.addMember(sailor);
+		int capacity = ship.getCurrentCrewNumber();
+		assertEquals(2, capacity);
+	}
+	
+	@Test
+	void correctTotalPayRoll() {
+		CrewMember officer = new Officer("John Doe", 102, 5, "Captain", new BigDecimal("1000"));
+		CrewMember sailor = new Sailor("John Doe", 103, 5, "Day Shift", new BigDecimal("12"), 10);
+		ship.addMember(officer);
+		ship.addMember(sailor);
+		BigDecimal expectedPay = new BigDecimal(1000 + (18*12*10));
+		BigDecimal actualPay = ship.calculateTotalPayRoll();
+		assertEquals(expectedPay, actualPay);
+	}
+}

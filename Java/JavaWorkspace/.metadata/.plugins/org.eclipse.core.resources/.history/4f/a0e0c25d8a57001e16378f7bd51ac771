@@ -1,0 +1,296 @@
+package com.fidelity.integration;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.UUID;
+import java.util.ArrayList;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fidelity.model.Client;
+import com.fidelity.model.ClientIdentification;
+import com.fidelity.model.Direction;
+import com.fidelity.model.Instrument;
+import com.fidelity.model.Order;
+import com.fidelity.model.Price;
+import com.fidelity.model.Trade;
+
+public class DaoImpl implements ClientDao, ClientIdentificationDao, OrderDao, TradeDao, InstrumentDao, PricesDao {
+	
+	private DataSource dataSource;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	public DaoImpl(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+	
+	private void handleDatabaseException(String message, SQLException e) {
+        e.printStackTrace();
+        logger.error(message, e);
+        throw new DatabaseException(message, e);
+    }
+
+    private void closeConnectionAndStatement(Connection connection, PreparedStatement statement) {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                logger.error("Cannot close connection", e);
+            }
+        }
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                logger.error("Cannot close statement", e);
+            }
+        }
+    }
+    
+    private void executeUpdate(String sql, Object... params) {
+        PreparedStatement statement = null;
+        Connection connection = null;
+        int rows;
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement(sql);
+            
+            for (int i = 0; i < params.length; i++) {
+                statement.setObject(i + 1, params[i]);
+            }
+            
+           rows = statement.executeUpdate();
+           if (rows == 0) {
+				throw new DatabaseException("there is no client with the given id ");
+			}
+        } catch (SQLException e) {
+            handleDatabaseException("Cannot execute SQL query", e);
+        } finally {
+            closeConnectionAndStatement(connection, statement);
+        }
+    }
+    
+    @Override
+	public List<Price> getAllPrices() {
+		Price price;
+		Connection connection = null;
+		List<Price> priceList = new ArrayList<>();
+        try {
+        	connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "SELECT i.instrumentid, i.description, i.externalidtype, i.externalid, i.categoryid, i.minquantity, i.maxquantity, p.bidPrice, p.askPrice " +
+                    "FROM cp_instrument i " +
+                    "INNER JOIN cp_price p " +
+                    "ON i.instrumentId = p.instrumentId");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+            	 String instrumentId = resultSet.getString("instrumentId");
+                 String description = resultSet.getString("description");
+                 String externalIdType = resultSet.getString("externalIdType");
+                 String externalId = resultSet.getString("externalId");
+                 String categoryId = resultSet.getString("categoryId");
+                 double minQuantity = resultSet.getDouble("minQuantity");
+                 double maxQuantity = resultSet.getDouble("maxQuantity");
+                 Instrument instrument = new Instrument(instrumentId, description, externalIdType, externalId, categoryId, minQuantity, maxQuantity);
+                
+                 double bidPrice = resultSet.getDouble("bidPrice");
+                 double askPrice = resultSet.getDouble("askPrice");
+                 String timestamp = resultSet.getString("timestamp");
+
+                 price =  new Price(instrumentId, bidPrice, askPrice, timestamp, instrument);
+                 priceList.add(price);
+            }
+        } catch (SQLException e) {
+            handleDatabaseException("Error retrieving instruments with prices: ", e);
+        }
+        return priceList;
+	}
+    
+    @Override
+	public String createOrder(Order order) {
+    	String orderId = generateOrderId(); 
+    	String sql = "INSERT INTO cp_order(orderId, instrumentId, quantity, targetPrice, direction, clientId) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
+    	executeUpdate(sql, 
+    			orderId,
+    			order.getInstrumentId(),
+    			order.getQuantity(),
+    			order.getTargetPrice(),
+    			order.getDirection().toString(),
+    			order.getClientId());
+        return orderId;
+    }
+    
+    private String generateOrderId() {
+    	UUID uuid = UUID.randomUUID();
+        String orderId = uuid.toString().replaceAll("-", "").substring(0, 6);
+        return orderId;
+	}
+
+	@Override
+	public void createTrade(String orderId, Trade trade) {
+    	String tradeId = generateTradeId(orderId, trade.getDirection());
+    	String sql = "INSERT INTO cp_trade(tradeId, instrumentId, quantity, executionPrice, direction, clientId, orderId, cashValue) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    	executeUpdate(sql, 
+    			tradeId,
+    			trade.getInstrumentId(),
+    			trade.getQuantity(),
+    			trade.getExecutionPrice(),
+    			trade.getDirection().toString(),
+    			trade.getClientId(),
+    			orderId,
+    			trade.getCashValue());
+    }
+    
+	private String generateTradeId(String orderId, Direction direction) {
+		 String tradeId = orderId + direction.toString();
+	     return tradeId;
+	}
+	
+	@Override
+	public List<Trade> getTradeHistory(String clientId) {
+		List<Trade> tradeList = new ArrayList<>();
+		Connection connection = null;
+        try {
+        	connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "SELECT t.tradeid, t.instrumentid, t.quantity, t.executionprice, t.direction, t.clientid, o.orderid, t.cashvalue, o.targetprice FROM cp_trade t INNER JOIN cp_order o ON t.orderId = o.orderId WHERE t.clientId = ?");
+            preparedStatement.setString(1, clientId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                Trade trade = createTradeObject(resultSet);
+                tradeList.add(trade);
+            }
+        } catch (SQLException e) {
+            handleDatabaseException("Error retrieving trades: ", e);
+        }
+        return tradeList;
+	}
+	
+	@Override
+    public List<Trade> getPortfolio(String clientId) {
+        List<Trade> currentHoldings = new ArrayList<>();
+        Connection connection = null;
+        String sql = "SELECT t.tradeid, t.instrumentid, t.quantity, t.executionprice, t.direction, t.clientid, o.orderid, t.cashvalue, o.targetprice FROM cp_trade t INNER JOIN cp_order o ON t.orderId = o.orderId WHERE t.clientId = ?";
+        PreparedStatement statement = null;
+        try {
+        	connection = dataSource.getConnection();
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, clientId);
+            ResultSet resultSet = statement.executeQuery();
+	            while (resultSet.next()) {
+	            	String instrumentId = resultSet.getString("instrumentId");
+	                double quantity = resultSet.getDouble("quantity");
+	                double executionPrice = resultSet.getDouble("executionPrice");
+	                Direction direction = Direction.valueOf(resultSet.getString("direction"));
+	                String id = resultSet.getString("clientId");
+	                String orderId = resultSet.getString("orderId");
+	                double cashValue = resultSet.getDouble("cashValue");
+	                String tradeId = resultSet.getString("tradeId");
+	                double targetPrice = resultSet.getDouble("targetPrice");
+	                Order order = new Order(instrumentId, quantity, targetPrice, direction, id, orderId);
+	                Trade trade = new Trade(instrumentId, quantity, executionPrice, direction, id, order, tradeId, cashValue);
+	                currentHoldings.add(trade);
+	            }
+        } catch (SQLException e) {
+            handleDatabaseException("Error retrieving current holdings: ", e);
+        }
+        return currentHoldings;
+	}
+
+	private Trade createTradeObject(ResultSet resultSet) throws SQLException {
+		String instrumentId = resultSet.getString("instrumentId");
+        double quantity = resultSet.getDouble("quantity");
+        double executionPrice = resultSet.getDouble("executionPrice");
+        Direction direction = Direction.valueOf(resultSet.getString("direction"));
+        String clientId = resultSet.getString("clientId");
+        String orderId = resultSet.getString("orderId");
+        double cashValue = resultSet.getDouble("cashValue");
+        String tradeId = resultSet.getString("tradeId");
+        double targetPrice = resultSet.getDouble("targetPrice");
+        Order order = new Order(instrumentId, quantity, targetPrice, direction, clientId, orderId);
+        return new Trade(instrumentId, quantity, executionPrice, direction, clientId, order, tradeId, cashValue);
+	}
+
+	@Override
+	public void insertClient(Client client) {}
+
+	@Override
+	public void updateTrade(Trade trade) {}
+
+	@Override
+	public void deleteTrade(String tradeId) {}
+
+	@Override
+	public void updateOrder(Order order) {}
+
+	@Override
+	public void deleteOrder(String orderId) {}
+
+	@Override
+	public Order getOrderById(String orderId) {return null;}
+
+	@Override
+	public List<Order> getAllOrders() {return null;}
+
+	@Override
+	public void insertClientIdentification(ClientIdentification identification, String clientId) {}
+
+	@Override
+	public void updateClientIdentification(ClientIdentification identification) {}
+
+	@Override
+	public void deleteClientIdentification(String clientId, String type) {}
+
+	@Override
+	public ClientIdentification getClientIdentification(String clientId, String type) {return null;}
+
+	@Override
+	public List<ClientIdentification> getClientIdentifications(String clientId) {return null;}
+
+	@Override
+	public void updateClient(Client client) {}
+
+	@Override
+	public void deleteClient(String clientId) {}
+
+	@Override
+	public Client getClientById(String clientId) {return null;}
+
+	@Override
+	public List<Client> getAllClients() {return null;}
+
+	@Override
+	public void insertPrice(Price price) {}
+
+	@Override
+	public void updatePrice(Price price) {}
+
+	@Override
+	public void deletePrice(String instrumentId, String timestamp) {}
+
+	@Override
+	public Price getPrice(String instrumentId, String timestamp) {return null;}
+
+	@Override
+	public void insertInstrument(Instrument instrument) {}
+
+	@Override
+	public void updateInstrument(Instrument instrument) {}
+
+	@Override
+	public void deleteInstrument(String instrumentId) {}
+
+	@Override
+	public Instrument getInstrumentById(String instrumentId) {return null;}
+
+	@Override
+	public List<Instrument> getAllInstruments() {return null;}
+}

@@ -1,0 +1,37 @@
+package com.fidelity.bowling;
+
+import java.util.List;
+import java.util.ArrayList;
+
+public class Game {
+	private int score = 0;
+	private int bonus = 0;
+	private List<Integer> scoreList = new ArrayList<>();
+	
+	public void rolls(int pins) {
+		if(pins < 0 || pins > 10) {
+			throw new IllegalArgumentException();
+		}
+		scoreList.add(pins);
+	}
+	
+	public int getScore() {
+		for(int i = 0; i < scoreList.size(); i++) {
+			score += scoreList.get(i);
+		}
+		
+		for(int i = 2; i < scoreList.size(); i +=2) {
+			if(scoreList.get(i-1) + scoreList.get(i-2) == 10) {
+				bonus += scoreList.get(i);
+			}
+		}
+		
+//		for(int i = 2; i < scoreList.size(); i +=2) {
+//			if(scoreList.get(i-2) == 10) {
+//				bonus += scoreList.get(i) + scoreList.get(i-1);
+//			}
+//		}
+		
+		return score + bonus;
+	}
+}

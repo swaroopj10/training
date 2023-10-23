@@ -1,0 +1,36 @@
+package com.fidelity.payroll;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class PartTimeEmployeeTest {
+	
+	private PartTimeEmployee partTimeEmployee;
+	private PartTimeEmployee partTimeEmployeeOverloaded;
+
+	@BeforeEach
+	void setUp() throws Exception {
+		partTimeEmployee = new PartTimeEmployee();
+		String name = "John Doe";
+		double hourlyRate = 250.00;
+		int hoursForMonth = 100;
+		partTimeEmployeeOverloaded = new PartTimeEmployee(name, hourlyRate, hoursForMonth);
+	}
+
+	@AfterEach
+	void tearDown() throws Exception {
+		partTimeEmployee = null;
+	}
+
+	@Test
+	void NotNull() {
+		assertNotNull(partTimeEmployee);
+	}
+	
+	@Test
+	void 
+
+}

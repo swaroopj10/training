@@ -1,0 +1,16 @@
+package com.fidelity.model;
+
+public enum Direction {
+    BUY("B"),
+    SELL("S");
+
+    private final String code;
+
+    Direction(String code) {
+        this.code = code;
+    }
+
+    public String getCode() {
+        return code;
+    }
+}

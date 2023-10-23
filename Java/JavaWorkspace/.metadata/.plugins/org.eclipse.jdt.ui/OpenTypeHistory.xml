@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<typeInfoHistroy>
+    <typeInfo handle="=MyPayrollExercises/src&lt;com.fidelity.payroll{Employee.java[Employee" modifiers="1025" timestamp="1694410397291"/>
+    <typeInfo handle="=FreightShip/src&lt;com.fidelity.freight{CrewMember.java[CrewMember" modifiers="1025" timestamp="1694427206469"/>
+    <typeInfo handle="=JDBCHackathonStarter/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.fidelity.integration{CarDao.java[CarDao" modifiers="513" timestamp="1694755884608"/>
+    <typeInfo handle="=PhoneContractExercise/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.fidelity.integration{PhoneContractDao.java[PhoneContractDao" modifiers="513" timestamp="1695109657094"/>
+    <typeInfo handle="=JDBCAssessmentStarter/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.fidelity.integration{ClientDao.java[ClientDao" modifiers="513" timestamp="1695110667814"/>
+    <typeInfo handle="=project_jdbc/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.fidelity.integration{ClientDao.java[ClientDao" modifiers="513" timestamp="1695141670389"/>
+    <typeInfo handle="=project_jdbc/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.fidelity.integration{ClientIdentificationDao.java[ClientIdentificationDao" modifiers="513" timestamp="1695141667484"/>
+    <typeInfo handle="=project_jdbc/C:\/Users\/Associate\/.m2\/repository\/com\/oracle\/database\/jdbc\/ojdbc8\/18.3.0.0\/ojdbc8-18.3.0.0.jar=/maven.pomderived=/true=/=/maven.groupId=/com.oracle.database.jdbc=/=/maven.artifactId=/ojdbc8=/=/maven.version=/18.3.0.0=/=/maven.scope=/compile=/=/maven.pomderived=/true=/&lt;oracle.jdbc.internal(ClientDataSupport.class[ClientDataSupport" modifiers="1537" timestamp="1686760629830"/>
+    <typeInfo handle="=project_jdbc/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.fidelity.integration{OrderDao.java[OrderDao" modifiers="513" timestamp="1695202489947"/>
+    <typeInfo handle="=project_jdbc/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.fidelity.integration{TradeDao.java[TradeDao" modifiers="513" timestamp="1695203248328"/>
+</typeInfoHistroy>

@@ -1,0 +1,81 @@
+package com.fidelity.payroll;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class PartTimeEmployeeTest {
+	
+	private Employee partTimeEmployee;
+	private PartTimeEmployee partTimeEmployeeOverloaded;
+
+	@BeforeEach
+	void setUp() throws Exception {
+		partTimeEmployee = new PartTimeEmployee();
+		String name = "John Doe";
+		double hourlyRate = 250.00;
+		int hoursForMonth = 100;
+		partTimeEmployeeOverloaded = new PartTimeEmployee(name, hourlyRate, hoursForMonth);
+	}
+
+	@AfterEach
+	void tearDown() throws Exception {
+		partTimeEmployee = null;
+	}
+
+	@Test
+	void NoArgsNotNull() {
+		assertNotNull(partTimeEmployee);
+	}
+	
+	@Test
+	void overLoadedNotNull() {
+		assertNotNull(partTimeEmployeeOverloaded);
+	}
+	
+	@Test
+	void setsName() {
+		String name = "John Doe";
+		assertEquals(name, partTimeEmployeeOverloaded.getName());		
+	}
+	
+	@Test
+	void setsHourlyRate() {
+		double hourlyRate = 250.00;
+		assertEquals(hourlyRate, partTimeEmployeeOverloaded.getHourlyRate());		
+	}
+	
+	@Test
+	void setsHoursForMonth() {
+		double hoursForMonth = 100;
+		assertEquals(hoursForMonth, partTimeEmployeeOverloaded.getHoursForMonth());		
+	}
+	
+	@Test
+	void returnPayNotZero() {
+		double pay = partTimeEmployeeOverloaded.calculateMonthlyPayment();
+		assertTrue(pay > 0);
+	}
+	
+	@Test
+	void returnCorrectPay() {
+		double expectedPay = 25000;
+		double pay = partTimeEmployeeOverloaded.calculateMonthlyPayment();
+		assertEquals(pay, expectedPay);
+	}
+	
+	@Test
+	void returnPayNotZeroWithBonus() {
+		double pay = partTimeEmployeeOverloaded.calculateMonthlyPayment(100);
+		assertTrue(pay > 0);
+	}
+	
+	@Test
+	void returnCorrectPayWithBonus() {
+		double expectedPay = 26000;
+		double pay = partTimeEmployeeOverloaded.calculateMonthlyPayment(1000.00);
+		assertEquals(pay, expectedPay);
+	}
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fidelity.india.secondary.assessment.integration.mapper.MarinaMapper">
+	
+	<select id="getMarinaName" resultType="String">
+		SELECT sp.port_name
+		FROM sea_ports sp
+		JOIN vessels v ON sp.ID = v.vessel_port
+		WHERE v.vessel_name = #{vesselName} 
+	</select>
+	
+</mapper>

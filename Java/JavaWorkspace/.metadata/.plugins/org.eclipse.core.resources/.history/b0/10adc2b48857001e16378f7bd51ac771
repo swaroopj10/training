@@ -1,0 +1,56 @@
+package com.fidelity.model;
+
+public class Trade {
+    private String instrumentId;
+    private double quantity;
+    private double executionPrice;
+    private Direction direction;
+    private String clientId;
+    private Order order;
+    private String tradeId;
+    private double cashValue;
+
+    public Trade(String instrumentId, double quantity, double executionPrice, Direction direction, String clientId, Order order, String tradeId, double cashValue) {
+        this.instrumentId = instrumentId;
+        this.quantity = quantity;
+        this.executionPrice = executionPrice;
+        this.direction = direction;
+        this.clientId = clientId;
+        this.order = order;
+        this.tradeId = tradeId;
+        this.cashValue = cashValue;
+    }
+
+    public String getInstrumentId() {
+        return instrumentId;
+    }
+
+    public double getQuantity() {
+        return quantity;
+    }
+
+    public double getExecutionPrice() {
+        return executionPrice;
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public String getTradeId() {
+        return tradeId;
+    }
+
+    public double getCashValue() {
+        return cashValue;
+    }
+}
+

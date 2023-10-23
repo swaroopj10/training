@@ -1,0 +1,40 @@
+package com.fidelity.integration;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.fidelity.model.Employee;
+
+class EmployeeDaoQueryTest {
+	
+	SimpleDataSource simpleDataSource;
+	EmployeeDao employeeDaoOracleImpl;
+	
+	@BeforeEach
+	void setUp() throws Exception {
+		simpleDataSource = new SimpleDataSource();
+		employeeDaoOracleImpl = new EmployeeDaoOracleImpl(simpleDataSource);
+	}
+
+	@AfterEach
+	void tearDown() throws Exception {
+		simpleDataSource.shutdown();
+	}
+
+	@Test
+	void canCreateObjectWithConstructor() {
+		assertNotNull(employeeDaoOracleImpl);
+	}
+	
+	@Test
+	void retrieveQueryAllEmployees() {
+		List<Employee> list = employeeDaoOracleImpl.queryAllEmployees();
+		assertEquals(14, list.size());
+	}
+
+}

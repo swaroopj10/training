@@ -1,0 +1,90 @@
+package com.fidelity.model;
+
+import java.util.Objects;
+
+public class Trade {
+    @Override
+	public String toString() {
+		return "Trade [instrumentId=" + instrumentId + ", quantity=" + quantity + ", executionPrice=" + executionPrice
+				+ ", direction=" + direction + ", clientId=" + clientId + ", order=" + order + ", tradeId=" + tradeId
+				+ ", cashValue=" + cashValue + ", hashCode()=" + hashCode() + ", getInstrumentId()=" + getInstrumentId()
+				+ ", getQuantity()=" + getQuantity() + ", getExecutionPrice()=" + getExecutionPrice()
+				+ ", getDirection()=" + getDirection() + ", getClientId()=" + getClientId() + ", getOrder()="
+				+ getOrder() + ", getTradeId()=" + getTradeId() + ", getCashValue()=" + getCashValue() + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(cashValue, clientId, direction, executionPrice, instrumentId, order, quantity, tradeId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Trade other = (Trade) obj;
+		return Double.doubleToLongBits(cashValue) == Double.doubleToLongBits(other.cashValue)
+				&& Objects.equals(clientId, other.clientId) && direction == other.direction
+				&& Double.doubleToLongBits(executionPrice) == Double.doubleToLongBits(other.executionPrice)
+				&& Objects.equals(instrumentId, other.instrumentId) && Objects.equals(order, other.order)
+				&& Double.doubleToLongBits(quantity) == Double.doubleToLongBits(other.quantity)
+				&& Objects.equals(tradeId, other.tradeId);
+	}
+
+	private String instrumentId;
+    private double quantity;
+    private double executionPrice;
+    private char direction;
+    private String clientId;
+    private Order order;
+    private String tradeId;
+    private double cashValue;
+
+    public Trade(String instrumentId, double quantity, double executionPrice, char direction, String clientId, Order order, String tradeId, double cashValue) {
+        this.instrumentId = instrumentId;
+        this.quantity = quantity;
+        this.executionPrice = executionPrice;
+        this.direction = direction;
+        this.clientId = clientId;
+        this.order = order;
+        this.tradeId = tradeId;
+        this.cashValue = cashValue;
+    }
+
+    public String getInstrumentId() {
+        return instrumentId;
+    }
+
+    public double getQuantity() {
+        return quantity;
+    }
+
+    public double getExecutionPrice() {
+        return executionPrice;
+    }
+
+    public char getDirection() {
+        return direction;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public String getTradeId() {
+        return tradeId;
+    }
+
+    public double getCashValue() {
+        return cashValue;
+    }
+}
+

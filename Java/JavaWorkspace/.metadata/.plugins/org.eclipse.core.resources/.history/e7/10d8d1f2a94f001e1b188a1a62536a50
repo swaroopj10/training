@@ -1,0 +1,23 @@
+package com.fidelity.bowling;
+
+public class Game {
+	private int score = 0;
+	private int bonus = 0;
+	private int scoreList[] = new int[21];
+	private int counter = 0;
+	
+	public void rolls(int pins) {
+		if(pins < 0 || pins > 10) {
+			throw new IllegalArgumentException();
+		}
+		scoreList[counter] = pins;
+		counter++;
+	}
+	
+	public int getScore() {
+		for(int scores : scoreList) {
+			score += scores;
+		}
+		return score;
+	}
+}

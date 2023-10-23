@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fidelity.weather.integration.mapper.WeatherMapper">
+	
+	<resultMap id="LatLongMap" type="LatitudeLongitude">
+		<result column="lat" property="latitude"/>
+		<result column="lon" property="longitude"/>
+	</resultMap>
+	
+	<select id="getLatitudeLongitude" resultMap="LatLongMap">
+		SELECT c.lat, c.lon
+		FROM city c
+		JOIN country_region cr ON c.country_region_id = cr.id
+		WHERE
+		    c.city = #{city}
+		    AND cr.region_code = #{region} 
+		    AND cr.country_code = #{country} 
+	</select>
+	
+</mapper>

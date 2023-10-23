@@ -1,0 +1,30 @@
+package com.project.tradewave;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class InvestmentPreferenceService {
+
+    private Map<String, InvestmentPreference> preferenceMap = new HashMap<>();
+
+    public void addOrUpdateInvestmentPreference(String clientId, String incomePurpose, InvestmentLength investmentLength, RiskTolerance riskTolerance, IncomeCategory incomeCategory) {
+        InvestmentPreference preference = preferenceMap.get(clientId);
+
+        if (preference == null) {
+            preference = new InvestmentPreference();
+            preference.addInvestmentPreference(incomePurpose, investmentLength, riskTolerance, incomeCategory);
+        } else {
+            preference.updateInvestmentPreference(incomePurpose, investmentLength, riskTolerance, incomeCategory);
+        }
+        preferenceMap.put(clientId, preference);
+    }
+
+    public InvestmentPreference getInvestmentPreference(String clientId) {
+        return preferenceMap.get(clientId);
+    }
+
+    public void removeInvestmentPreference(String clientId) {
+        preferenceMap.remove(clientId);
+    }
+}
+

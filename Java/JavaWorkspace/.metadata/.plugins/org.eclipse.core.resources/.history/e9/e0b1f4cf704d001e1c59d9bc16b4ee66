@@ -1,0 +1,114 @@
+package com.fidelity.payroll;
+
+import static org.junit.jupiter.api.Assertions.*;
+import java.math.BigDecimal;
+import java.util.Objects;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class PartTimeEmployeeTest {
+	private PartTimeEmployee partTimeEmployee;
+
+	@BeforeEach
+	void setUp() throws Exception {
+		String name = "John Doe";
+		BigDecimal hourlyRate = new BigDecimal("250");
+		int hoursForMonth = 100;
+		partTimeEmployee = new PartTimeEmployee(name, hourlyRate, hoursForMonth);
+	}
+
+	@AfterEach
+	void tearDown() throws Exception {
+		partTimeEmployee = null;
+	}
+
+	@Test
+	void NoArgsNotNull() {
+		assertNotNull(partTimeEmployee);
+	}
+	
+	@Test
+	void overLoadedNotNull() {
+		assertNotNull(partTimeEmployee);
+	}
+	
+	@Test
+	void setsName() {
+		String name = "John Doe";
+		assertEquals(name, partTimeEmployee.getName());		
+	}
+	
+	@Test
+	void setsHourlyRate() {
+		BigDecimal hourlyRate = new BigDecimal("250");
+		assertEquals(0, ourlyRate.compareTo(partTimeEmployee.getHourlyRate()));	
+	}
+	
+	@Test
+	void setsHoursForMonth() {
+		double hoursForMonth = 100;
+		assertEquals(hoursForMonth, partTimeEmployee.getHoursForMonth());		
+	}
+	
+	@Test
+	void returnPayNotZero() {
+		BigDecimal pay = partTimeEmployee.calculateMonthlyPayment();
+		BigDecimal num2 = new BigDecimal("0");
+		assertTrue(pay.compareTo(num2) > 0);
+	}
+	
+	@Test
+	void returnCorrectPay() {
+		double expectedPay = 25000;
+		BigDecimal pay = partTimeEmployee.calculateMonthlyPayment();
+		assertEquals(pay, expectedPay);
+	}
+	
+	@Test
+	void returnPayNotZeroWithBonus() {
+		BigDecimal pay = partTimeEmployee.calculateMonthlyPayment(100);
+		BigDecimal num2 = new BigDecimal("0");
+		assertTrue(pay.compareTo(num2) > 0);
+	}
+	
+	@Test
+	void returnCorrectPayWithBonus() {
+		double expectedPay = 26000;
+		BigDecimal pay = partTimeEmployee.calculateMonthlyPayment(1000.00);
+		assertEquals(pay, expectedPay);
+	}
+	
+	@Test
+	void testPTEmployeeEqualityEquals() {
+		BigDecimal hourlyRate = new BigDecimal("10");
+		Employee emp = new PartTimeEmployee("John Doe", hourlyRate, 100);
+		assertEquals(new PartTimeEmployee("John Doe", hourlyRate, 100), emp);
+	}
+	
+	@Test
+	void testPTEmployeeEqualityNotEquals() {
+		BigDecimal hourlyRate = new BigDecimal("10");
+		Employee emp = new PartTimeEmployee("John Doe", hourlyRate, 100);
+		assertNotEquals(new PartTimeEmployee("John Doe", hourlyRate, 200), emp);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(partTimeEmployee, partTimeEmployee);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PartTimeEmployeeTest other = (PartTimeEmployeeTest) obj;
+		return Objects.equals(partTimeEmployee, other.partTimeEmployee)
+				&& Objects.equals(partTimeEmployee, other.partTimeEmployee);
+	}
+}

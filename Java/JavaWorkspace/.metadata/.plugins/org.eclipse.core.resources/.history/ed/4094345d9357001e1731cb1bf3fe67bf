@@ -1,0 +1,108 @@
+package com.fidelity.integration;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.sql.Connection;
+import java.util.List;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.jdbc.JdbcTestUtils;
+
+import com.fidelity.model.Trade;
+import com.fidelity.model.Direction;
+import com.fidelity.model.Order;
+
+class DaoImplTest {
+	
+	private JdbcTemplate jdbcTemplate;
+	private DbTestUtils dbTestUtils;
+	private TradeDao tradeDao;
+	private OrderDao orderDao;
+	private SimpleDataSource dataSource;
+	private Connection connection;
+	private TransactionManager transactionManager;
+
+	@BeforeEach
+	void setUp() throws Exception {
+		dataSource = new SimpleDataSource();
+		connection = dataSource.getConnection();
+		tradeDao = new DaoImpl(dataSource);
+		orderDao = new DaoImpl(dataSource);
+		transactionManager = new TransactionManager(dataSource);
+		transactionManager.startTransaction(); 
+		dbTestUtils = new DbTestUtils(connection);		
+		jdbcTemplate = dbTestUtils.initJdbcTemplate();
+	}
+
+	@AfterEach
+	void tearDown() throws Exception {
+		transactionManager.rollbackTransaction();
+		dataSource.shutdown();
+	}
+	
+	@Test
+    public void testCreateOrder() {
+		int oldSize = JdbcTestUtils.countRowsInTable(jdbcTemplate, "cp_order");
+        Order order = new Order("N123456", 10, 105.00, "B", "100", "01006");
+        orderDao.createOrder(order);
+        int newSize = JdbcTestUtils.countRowsInTable(jdbcTemplate, "cp_order");
+        assertEquals(oldSize + 1, newSize);
+    }
+
+    @Test
+    public void testCreateTrade() {
+    	int oldSize = JdbcTestUtils.countRowsInTable(jdbcTemplate, "cp_trade");
+        Order order = new Order("N123456", 10, 105.00, "B", "100", "01006");
+        String orderId = orderDao.createOrder(order);
+        Trade trade = new Trade("N123456", 10, 107.00, "B", "100", order, "01006B", 1070);
+        tradeDao.createTrade(orderId, trade);
+        int newSize = JdbcTestUtils.countRowsInTable(jdbcTemplate, "cp_trade");
+        assertEquals(oldSize + 1, newSize);
+    }
+
+	@Test
+    public void testGetTradeHistory() {
+        List<Trade> tradeList = tradeDao.getTradeHistory("100");
+        assertNotNull(tradeList);
+        assertTrue(tradeList.size() > 0);
+    }
+
+    @Test
+    public void testGetPortfolio() {
+        List<Trade> portfolio = tradeDao.getPortfolio("100");
+        assertNotNull(portfolio);
+        assertTrue(portfolio.size() > 0);
+    }
+    
+    @Test
+    public void testCreateOrderWithInvalidData() {
+        Order order = new Order("N123456", 10, 105.00, "T", "100", "01006");
+        assertThrows(DatabaseException.class, () -> orderDao.createOrder(order));
+    }
+
+    @Test
+    public void testCreateTradeWithInvalidData() {
+        Order order = new Order("N123456", 10, 105.00, "B", "100", "01006");
+        String orderId = orderDao.createOrder(order);
+        Trade trade = new Trade("N123456", 10, 107.00, "T", "100", order, "01006B", 1070);
+        assertThrows(DatabaseException.class, () -> tradeDao.createTrade(orderId, trade));
+    }
+
+    @Test
+    public void testGetTradeHistoryWithInvalidClientId() {
+        List<Trade> tradeList = tradeDao.getTradeHistory("101");
+        assertNotNull(tradeList);
+        assertEquals(0, tradeList.size());
+    }
+
+    @Test
+    public void testGetPortfolioWithInvalidClientId() {
+        List<Trade> portfolio = tradeDao.getPortfolio("101");
+        assertNotNull(portfolio);
+        assertEquals(0, portfolio.size());
+    }
+
+}

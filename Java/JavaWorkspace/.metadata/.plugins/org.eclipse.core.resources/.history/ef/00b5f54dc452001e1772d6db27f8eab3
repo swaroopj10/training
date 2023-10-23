@@ -1,0 +1,30 @@
+package com.fidelity.integration;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class EmployeeDaoQueryTest {
+	
+	SimpleDataSource simpleDataSource;
+	EmployeeDao employeeDaoOracleImpl;
+	
+	@BeforeEach
+	void setUp() throws Exception {
+		simpleDataSource = new SimpleDataSource();
+		employeeDaoOracleImpl = new EmployeeDaoOracleImpl(simpleDataSource);
+	}
+
+	@AfterEach
+	void tearDown() throws Exception {
+		simpleDataSource.shutdown();
+	}
+
+	@Test
+	void retrieveListItems() {
+		fail("Not yet implemented");
+	}
+
+}

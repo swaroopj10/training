@@ -1,0 +1,154 @@
+package com.fidelity.integration;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fidelity.model.Car;
+import com.fidelity.model.CarBodyType;
+import com.fidelity.model.CarEngine;
+import com.fidelity.model.CarEngineType;
+
+public class CarDaoImpl implements CarDao {
+	
+	private DataSource dataSource;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	public CarDaoImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    private void handleDatabaseException(String message, SQLException e) {
+        e.printStackTrace();
+        logger.error(message, e);
+        throw new DatabaseException(message, e);
+    }
+
+    private void closeConnectionAndStatement(Connection connection, PreparedStatement statement) {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                logger.error("Cannot close connection", e);
+            }
+        }
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                logger.error("Cannot close statement", e);
+            }
+        }
+    }
+
+	@Override
+	public List<Car> getCars() {
+		String sql = "SELECT e.id,e.make,e.model,b.body_type_name,c.engine_type,c.engine_size_l,c.horsepower,e.manufacture_date from e_car e join e_car_engine c on e.id=c.id JOIN e_car_body_type b ON e.body_type=b.body_type ORDER BY e.id";
+		return executeQuery(sql);
+		
+	}
+
+	private List<Car> executeQuery(String sql, Object... params ) {
+		List<Car> carList = new ArrayList<>();
+		PreparedStatement statement = null;
+		Connection connection = null;
+
+		try {
+			connection = dataSource.getConnection();
+			statement = connection.prepareStatement(sql);
+
+			for (int i = 0; i < params.length; i++) {
+				statement.setObject(i + 1, params[i]);
+			}
+
+			ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				int id = resultSet.getInt("id");
+				String make = resultSet.getString("make");
+				String model = resultSet.getString("model");
+				String bodyTypeName = resultSet.getString("body_type_name");
+				int engineType = resultSet.getInt("engine_type");
+				CarEngineType carEngineType = CarEngineType.of(engineType);
+				float horsepower = resultSet.getFloat("horsepower");
+				float engineSize = resultSet.getFloat("engine_size_l");
+				if(resultSet.wasNull()) {
+					engineSize = 0;
+				}
+				LocalDate manufactureDate = resultSet.getDate("manufacture_date").toLocalDate();
+				
+				CarEngine carEngine = new CarEngine(id, carEngineType, horsepower, engineSize);
+				Car car = new Car(id, make, model, bodyTypeName, carEngine, manufactureDate);
+				
+				carList.add(car);
+			}
+
+		} catch (SQLException e) {
+			handleDatabaseException("Cannot execute SQL query", e);
+		} finally {
+			closeConnectionAndStatement(connection, statement);
+		}
+		return carList;
+	}
+
+	@Override
+	public void insertCar(Car car) {
+		String carSql = "INSERT INTO e_car(id, make, model, body_type, manufacture_date) VALUES (?,?,?,?,?)";
+		CarBodyType bodyType = CarBodyType.of(car.getBodyTypeName());
+		int bodyTypeNumber = bodyType.getCode();
+		executeUpdate(carSql, 
+				car.getId(),
+				car.getMake(),
+				car.getModel(),
+				bodyTypeNumber,
+				Date.valueOf(car.getManufactureDate()));
+		String engineSql = "INSERT INTO e_car_engine(id, engine_type, engine_size_l, horsepower) VALUES (?,?,?,?)";
+		CarEngine carEngine = new CarEngine();
+		carEngine = car.getEngine();
+		executeUpdate(engineSql, 
+				carEngine.getCarId(),
+				carEngine.getEngineType().getCode(),
+				carEngine.getEngineSizeInLiters(),
+				carEngine.getHorsepower());
+	}
+
+	@Override
+	public void updateCar(Car car) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deleteCar(int carId) {
+		// TODO Auto-generated method stub
+
+	}
+	
+	private void executeUpdate(String sql, Object... params) {
+        PreparedStatement statement = null;
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement(sql);
+            
+            for (int i = 0; i < params.length; i++) {
+                statement.setObject(i + 1, params[i]);
+            }
+            
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            handleDatabaseException("Cannot execute SQL query", e);
+        } finally {
+            closeConnectionAndStatement(connection, statement);
+        }
+    }
+}

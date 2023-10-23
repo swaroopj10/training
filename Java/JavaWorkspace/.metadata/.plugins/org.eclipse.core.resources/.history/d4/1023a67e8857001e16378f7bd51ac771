@@ -1,0 +1,44 @@
+package com.fidelity.model;
+
+public class Client {
+    private String clientId;
+    private String email;
+    private String dateOfBirth;
+    private String country;
+    private String postalCode;
+    private ClientIdentification[] identification;
+
+    public Client(String clientId, String email, String dateOfBirth, String country, String postalCode, ClientIdentification[] identification) {
+        this.clientId = clientId;
+        this.email = email;
+        this.dateOfBirth = dateOfBirth;
+        this.country = country;
+        this.postalCode = postalCode;
+        this.identification = identification;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public ClientIdentification[] getIdentification() {
+        return identification;
+    }
+}
+

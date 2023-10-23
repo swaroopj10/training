@@ -1,0 +1,285 @@
+package com.fidelity.integration;
+
+import java.util.List;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fidelity.model.Employee;
+
+public class EmployeeDaoOracleImpl extends EmployeeDao {
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	public EmployeeDaoOracleImpl(DataSource datasource) {
+		super(datasource);
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public List<Employee> queryAllEmployees() {
+		String sql = "SELECT empno, ename, job, mgr, hiredate, sal, comm, deptno FROM emp";
+		List<Employee> employeeList = new ArrayList<>();
+		PreparedStatement statement = null;
+		Connection connection = null;
+		try {
+				connection = getDataSource().getConnection();
+				statement = connection.prepareStatement(sql);
+				ResultSet resultSet = statement.executeQuery();
+				while (resultSet.next()) {
+					Employee employee = new Employee(resultSet.getInt("EMPNO"),
+					resultSet.getString("ENAME"),
+					resultSet.getString("JOB"),
+					resultSet.getInt("MGR"),
+					resultSet.getDate("hiredate").toLocalDate(),
+					resultSet.getBigDecimal("SAL"),
+					resultSet.getBigDecimal("COMM"),
+					resultSet.getInt("DEPTNO"));
+				employeeList.add(employee);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logger.error("Cannot execute SQL query for emp: {}", e);
+			throw new DatabaseException("Cannot execute SQL query for emp: ", e);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close connection", e);
+				}
+			}
+			if (statement != null) {
+				try {
+					statement.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close statement", e);
+				}
+			}
+		}
+		return employeeList;
+	}
+
+	@Override
+	public Employee queryEmployeeById(int empNo) {
+		String sql = "SELECT empno, ename, job, mgr, hiredate, sal, comm, deptno FROM emp WHERE empno = ?";
+		Employee employee = null;
+		PreparedStatement statement = null;
+		Connection connection = null;
+		try {
+				connection = getDataSource().getConnection();
+				statement = connection.prepareStatement(sql);
+				statement.setInt(1, empNo);
+				ResultSet resultSet = statement.executeQuery();
+				while (resultSet.next()) {
+					employee = new Employee(
+					resultSet.getInt("EMPNO"),	
+					resultSet.getString("ENAME"),
+					resultSet.getString("JOB"),
+					resultSet.getInt("MGR"),
+					resultSet.getDate("hiredate").toLocalDate(),
+					resultSet.getBigDecimal("SAL"),
+					resultSet.getBigDecimal("COMM"),
+					resultSet.getInt("DEPTNO"));
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logger.error("Cannot execute SQL query for emp: {}", e);
+			throw new DatabaseException("Cannot execute SQL query for emp: ", e);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close connection", e);
+				}
+			}
+			if (statement != null) {
+				try {
+					statement.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close statement", e);
+				}
+			}
+		}
+		return employee;
+	}
+	
+	@Override
+	public List<Employee> queryEmployeeByName(String name) {
+		String sql = "SELECT empno, ename, job, mgr, hiredate, sal, comm, deptno FROM emp WHERE ename = ?";
+		List<Employee> employeeList = new ArrayList<>();
+		PreparedStatement statement = null;
+		Connection connection = null;
+		try {
+				connection = getDataSource().getConnection();
+				statement = connection.prepareStatement(sql);
+				statement.setString(1, name);
+				ResultSet resultSet = statement.executeQuery();
+				while (resultSet.next()) {
+					Employee employee = new Employee(resultSet.getInt("EMPNO"),
+					resultSet.getString("ENAME"),
+					resultSet.getString("JOB"),
+					resultSet.getInt("MGR"),
+					resultSet.getDate("hiredate").toLocalDate(),
+					resultSet.getBigDecimal("SAL"),
+					resultSet.getBigDecimal("COMM"),
+					resultSet.getInt("DEPTNO"));
+				employeeList.add(employee);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logger.error("Cannot execute SQL query for emp: {}", e);
+			throw new DatabaseException("Cannot execute SQL query for emp: ", e);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close connection", e);
+				}
+			}
+			if (statement != null) {
+				try {
+					statement.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close statement", e);
+				}
+			}
+		}
+		return employeeList;
+	}
+	
+	@Override
+	public List<Employee> queryEmployeeByDeptName(int deptNo) {
+		String sql = "SELECT empno, ename, job, mgr, hiredate, sal, comm, deptno FROM emp WHERE deptno = ?";
+		List<Employee> employeeList = new ArrayList<>();
+		PreparedStatement statement = null;
+		Connection connection = null;
+		try {
+				connection = getDataSource().getConnection();
+				statement = connection.prepareStatement(sql);
+				statement.setInt(1, deptNo);
+				ResultSet resultSet = statement.executeQuery();
+				while (resultSet.next()) {
+					Employee employee = new Employee(resultSet.getInt("EMPNO"),
+					resultSet.getString("ENAME"),
+					resultSet.getString("JOB"),
+					resultSet.getInt("MGR"),
+					resultSet.getDate("hiredate").toLocalDate(),
+					resultSet.getBigDecimal("SAL"),
+					resultSet.getBigDecimal("COMM"),
+					resultSet.getInt("DEPTNO"));
+				employeeList.add(employee);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logger.error("Cannot execute SQL query for emp: {}", e);
+			throw new DatabaseException("Cannot execute SQL query for emp: ", e);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close connection", e);
+				}
+			}
+			if (statement != null) {
+				try {
+					statement.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close statement", e);
+				}
+			}
+		}
+		return employeeList;
+	}
+
+	@Override
+	public void insertEmployee(Employee newEmployee) {
+		String sql = "INSERT INTO emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) VALUES (?,?,?,?,?,?,?,?)";
+		PreparedStatement statement = null;
+		Connection connection = null;
+		try {
+				connection = getDataSource().getConnection();
+				statement = connection.prepareStatement(sql);
+				statement.setInt(1, newEmployee.getEmpNumber());
+				statement.setString(2, newEmployee.getEmpName());
+				statement.setString(3, newEmployee.getJob());
+				statement.setInt(4, newEmployee.getMgrNumber());
+				Date date = Date.valueOf(newEmployee.getHireDate());
+				statement.setDate(5, date);
+				statement.setBigDecimal(6, newEmployee.getSalary());
+				statement.setBigDecimal(7, newEmployee.getComm());
+				statement.setInt(8, newEmployee.getDeptNumber());
+				statement.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logger.error("Cannot execute SQL query for emp: {}", e);
+			throw new DatabaseException("Cannot execute SQL query for emp: ", e);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close connection", e);
+				}
+			}
+			if (statement != null) {
+				try {
+					statement.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close statement", e);
+				}
+			}
+		}	
+	}
+
+	@Override
+	public void updateEmployee(Employee employee) {
+		
+	}
+
+	@Override
+	public void deleteEmployee(Employee employee) {
+		String sql = "DELETE FROM emp WHERE ename = ?"; 
+		PreparedStatement statement = null;
+		Connection connection = null;
+		try {
+			connection = getDataSource().getConnection();
+			statement = connection.prepareStatement(sql);
+			statement.setString(1,employee.getEmpName());
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			logger.error("Cannot delete from emp", sql, e);
+			throw new DatabaseException("Cannot delete from emp" + sql, e);
+		}	finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close connection", e);
+				}
+			}
+			if (statement != null) {
+				try {
+					statement.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close statement", e);
+				}
+			}
+		}	
+	}
+}

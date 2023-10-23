@@ -1,0 +1,17 @@
+package com.fidelity.payroll;
+
+public class FullTimeEmployee {
+	double salary;
+	public FullTimeEmployee(double salary) {
+		super();
+		this.salary = salary;
+	}
+	public FullTimeEmployee() {
+		this(0.0);
+	}
+	public short calculateMonthlyPay(int i) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+}

@@ -1,0 +1,21 @@
+package com.fidelity.integration;
+
+import java.util.List;
+
+import com.fidelity.model.PhoneContract;
+
+public class PhoneContractDaoImpl implements PhoneContractDao {
+
+	@Override
+	public List<PhoneContract> getFullPhoneContracts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<PhoneContract> getPhoneContractByID(int pcId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

@@ -1,0 +1,13 @@
+package com.fidelity.integration;
+
+import java.util.List;
+
+import com.fidelity.model.Trade;
+
+public interface TradeDao {
+    void createTrade(String orderId, Trade trade);
+    void updateTrade(Trade trade);
+    void deleteTrade(String tradeId);
+    Trade getTradeById(String tradeId);
+    List<Trade> getAllTrades(String clientId);
+}

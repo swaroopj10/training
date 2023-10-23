@@ -1,0 +1,93 @@
+package com.fidelity.integration;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.fidelity.model.Employee;
+
+class EmployeeDaoQueryTest {
+	
+	SimpleDataSource simpleDataSource;
+	EmployeeDao employeeDaoOracleImpl;
+	
+	@BeforeEach
+	void setUp() throws Exception {
+		simpleDataSource = new SimpleDataSource();
+		employeeDaoOracleImpl = new EmployeeDaoOracleImpl(simpleDataSource);
+	}
+
+	@AfterEach
+	void tearDown() throws Exception {
+		simpleDataSource.shutdown();
+	}
+
+	@Test
+	void canCreateObjectWithConstructor() {
+		assertNotNull(employeeDaoOracleImpl);
+	}
+	
+	@Test
+	void QueryAllEmployeesNotNull() {
+		assertNotNull(employeeDaoOracleImpl.queryAllEmployees());
+	}
+	
+	@Test
+	void retrieveQueryAllEmployeesListSize() {
+		List<Employee> list = employeeDaoOracleImpl.queryAllEmployees();
+		assertEquals(14, list.size());
+	}
+	
+	@Test
+	void retrieveQueryAllEmployeesListFirstElement() {
+		Employee employee1 = new Employee(7369,"SMITH","CLERK", 7902, LocalDate.of(1980, 12, 17), new BigDecimal(800.00),null, 20);
+		List<Employee> list = employeeDaoOracleImpl.queryAllEmployees();
+		assertEquals(employee1, list.get(0));
+	}
+	
+	@Test
+	void retrieveQueryAllEmployeesListLasttElement() {
+		Employee employee1 = new Employee(7934,"MILLER","CLERK", 7782, LocalDate.of(1982, 1, 23), new BigDecimal(1300.00),null, 10);
+		List<Employee> list = employeeDaoOracleImpl.queryAllEmployees();
+		assertEquals(employee1, list.get(list.size() - 1));
+	}
+	
+	@Test
+	void QueryEmployeesByIdNotNull() {
+		int id = 7934;
+		assertNotNull(employeeDaoOracleImpl.queryEmployeeById(id));
+	}
+	
+	@Test
+	void IdDoesNotExist() {
+		int id = 1000;
+		assertNull(employeeDaoOracleImpl.queryEmployeeById(id));
+	}
+	
+	@Test
+	void queryEmployeeById() {
+		int id = 7934;
+		Employee employee = new Employee(7934,"MILLER","CLERK", 7782, LocalDate.of(1982, 1, 23), new BigDecimal(1300.00),null, 10);
+		assertEquals(employee, employeeDaoOracleImpl.queryEmployeeById(id));
+	}
+	
+	@Test
+	void retrieveQueryEmployeeByNameListSize() {
+		String name = "SCOTT";
+		List<Employee> list = employeeDaoOracleImpl.queryEmployeeByName(name);
+		assertEquals(1, list.size());
+	}
+	
+	@Test
+	void retrieveQueryEmployeeByDeptNameListSize() {
+		int deptNo = 20;
+		List<Employee> list = employeeDaoOracleImpl.queryEmployeeByName(deptNo);
+		assertEquals(1, list.size());
+	}
+}

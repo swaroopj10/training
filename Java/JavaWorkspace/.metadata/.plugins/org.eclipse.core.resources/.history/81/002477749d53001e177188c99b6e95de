@@ -1,0 +1,71 @@
+package com.fidelity.integration;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fidelity.model.Car;
+
+public class CarDaoImpl implements CarDao {
+	
+	private DataSource dataSource;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	public CarDaoImpl(DataSource datasource) {
+        this.dataSource = dataSource;
+    }
+
+    private void handleDatabaseException(String message, SQLException e) {
+        e.printStackTrace();
+        logger.error(message, e);
+        throw new DatabaseException(message, e);
+    }
+
+    private void closeConnectionAndStatement(Connection connection, PreparedStatement statement) {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                logger.error("Cannot close connection", e);
+            }
+        }
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                logger.error("Cannot close statement", e);
+            }
+        }
+    }
+
+	@Override
+	public List<Car> getCars() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void insertCar(Car car) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updateCar(Car car) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deleteCar(int carId) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

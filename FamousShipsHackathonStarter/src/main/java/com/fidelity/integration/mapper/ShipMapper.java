@@ -8,5 +8,4 @@ public interface ShipMapper {
 	List<Ship> getAllShips();
 	Ship getShipById(int id);
 	String getCaptainByShipName(String name);
-
 }

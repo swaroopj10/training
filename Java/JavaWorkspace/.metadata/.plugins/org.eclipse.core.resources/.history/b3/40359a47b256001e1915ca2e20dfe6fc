@@ -1,0 +1,71 @@
+package com.fidelity.integration;
+
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.ArrayList;
+
+import javax.sql.DataSource;
+
+import com.fidelity.model.PhoneContract;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class PhoneContractDaoImpl implements PhoneContractDao {
+	
+	private DataSource dataSource;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	public PhoneContractDaoImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    private void handleDatabaseException(String message, SQLException e) {
+        e.printStackTrace();
+        logger.error(message, e);
+        throw new DatabaseException(message, e);
+    }
+    
+	private List<PhoneContract> executeQuery(String sql, Object... params ) {
+		List<PhoneContract> phones = new ArrayList<>();
+        try(Connection connection = this.dataSource.getConnection();
+        		PreparedStatement statement = connection.prepareStatement(sql);
+				 ResultSet resultSet = statement.executeQuery()
+				){
+
+            while (resultSet.next()) {
+            	int pcid = resultSet.getInt("pcid");
+            	String name = resultSet.getString("pcname");
+            	String ratesName = resultSet.getString("ratesname");
+            	int hours_quantity = resultSet.getInt("hours_quantity");
+            	if(resultSet.wasNull()) {
+            		hours_quantity = 0;
+            	}
+            	BigDecimal totalValue = resultSet.getBigDecimal("TOTALVALUE");
+
+            	PhoneContract p = new PhoneContract(pcid,name,ratesName,hours_quantity,totalValue);
+                phones.add(p);
+            }
+        } catch (SQLException e) {
+            handleDatabaseException("Could not get values", e);
+        }
+		return phones;
+	}
+
+	@Override
+	public List<PhoneContract> getFullPhoneContracts() {
+		String sql = "SELECT p.pcid, p.pcname, coalesce(r.ratesname, 'N/A') rates_name, coalesce(h.hours_quantity, 0) hrs_quantity, coalesce(h.hours_quantity, 0) * coalesce(r.ratesprice, 0) total FROM b_phonecontracts p LEFT JOIN b_hours h ON p.pcid = h.pcid LEFT JOIN b_rates r ON h.ratesid = r.ratesid";
+		return executeQuery(sql);
+	}
+
+	@Override
+	public List<PhoneContract> getPhoneContractByID(int pcId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

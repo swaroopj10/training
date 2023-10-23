@@ -1,0 +1,5 @@
+package com.fidelity.model;
+
+public enum Direction {
+
+}

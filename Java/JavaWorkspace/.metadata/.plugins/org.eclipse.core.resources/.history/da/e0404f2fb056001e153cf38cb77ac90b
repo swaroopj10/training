@@ -1,0 +1,4 @@
+db.url=scott@//localhost:1521/XEPDB1
+db.username=scott
+db.password=TIGER
+db.driver=oracle.jdbc.OracleDriver

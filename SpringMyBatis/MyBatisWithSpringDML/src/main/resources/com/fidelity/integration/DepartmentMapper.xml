@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fidelity.integration.DepartmentMapper">
+		<resultMap type="Department" id="DepartmentAndEmployees">
+		<id property="id"				column="id" />
+		<result property="name"			column="dname" />
+		<result property="location"		column="loc" />
+		<collection property="employees" resultMap="EmployeeMap" />
+	</resultMap>
+
+	<resultMap type="Employee" id="EmployeeMap">
+		<id property="id"				column="empno" />
+		<result property="name"			column="ename" />
+		<result property="job"			column="job" />
+		<result property="manager"		column="mgr" />
+		<result property="hireDate"		column="hiredate" />
+		<result property="salary"		column="sal" />
+		<result property="commission"	column="comm" />
+		<result property="deptId"		column="deptno" />
+	</resultMap>
+</mapper>

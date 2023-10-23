@@ -1,0 +1,266 @@
+package com.fidelity.integration;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
+
+import java.sql.Connection;
+import java.time.LocalDate;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.jdbc.JdbcTestUtils;
+
+import com.fidelity.model.Car;
+import com.fidelity.model.CarBodyType;
+import com.fidelity.model.CarEngine;
+import com.fidelity.model.CarEngineType;
+
+class CarDaoImplTest {
+	private JdbcTemplate jdbcTemplate;
+	private DbTestUtils dbTestUtils;
+	private CarDao dao;
+	private SimpleDataSource dataSource;
+	private Connection connection;
+	private TransactionManager transactionManager;
+
+	@BeforeEach
+	void setUp() throws Exception {
+		dataSource = new SimpleDataSource();
+		connection = dataSource.getConnection();
+		dao = new CarDaoImpl(dataSource);
+		transactionManager = new TransactionManager(dataSource);
+		transactionManager.startTransaction(); 
+		dbTestUtils = new DbTestUtils(connection);		
+		jdbcTemplate = dbTestUtils.initJdbcTemplate();
+	}
+
+	@AfterEach
+	void tearDown() throws Exception {
+		transactionManager.rollbackTransaction();
+		dataSource.shutdown();
+	}
+
+	@Test
+	void getAllCarsNotNull() {
+		assertNotNull(dao.getCars());
+	}
+	
+	@Test
+	void getAllCarsListSize() {
+		assertEquals(8,dao.getCars().size());
+	}
+	
+	@Test
+	void getAllCarsFirstElement() {
+		CarEngine carEngine = new CarEngine(101, CarEngineType.of(3), 0, 266);
+		Car car = new Car(101, "Ford", "Mustang Mach-E", "Convertible", carEngine, LocalDate.of(2022, 1, 04));
+		assertEquals(car, dao.getCars().get(0));
+	}
+	
+	@Test
+	void getAllCarsLastElement() {
+		CarEngine carEngine = new CarEngine(108, CarEngineType.of(3), 0, 670);
+		Car car = new Car(108, "Tesla", "Model S", "Sedan", carEngine, LocalDate.of(2022, 1, 22));
+		assertEquals(car, dao.getCars().get(dao.getCars().size()-1));
+	}
+
+	@Test
+	void testInsertCarIncrementsTableSize() {
+	    int oldSize = JdbcTestUtils.countRowsInTable(jdbcTemplate, "e_car");
+
+	    CarEngine carEngine = new CarEngine(109, CarEngineType.of(2), 680, 0);
+	    Car car = new Car(109, "Tesla", "Model Y", "Sedan", carEngine, LocalDate.of(2022, 1, 15));
+	    
+	    dao.insertCar(car);
+
+	    int newSize = JdbcTestUtils.countRowsInTable(jdbcTemplate, "e_car");
+
+	    assertEquals(oldSize + 1, newSize);
+	}
+
+	@Test
+	void testInsertCarWithValidId() {
+	    assertEquals(0, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car", "id=109"));
+
+	    CarEngine carEngine = new CarEngine(109, CarEngineType.of(2), 680, 0);
+	    Car car = new Car(109, "Tesla", "Model Y", "Sedan", carEngine, LocalDate.of(2022, 1, 15));
+	    
+	    dao.insertCar(car);
+
+	    assertEquals(1, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car", "id=109"));
+	}
+	
+	@Test
+	void insertEngineCarTableSize() {
+		int oldSize = JdbcTestUtils.countRowsInTable(jdbcTemplate, "e_car_engine");
+		CarEngine carEngine = new CarEngine(109, CarEngineType.of(2), 0, 680);
+		Car car = new Car(109, "Tesla", "Model Y", "Sedan", carEngine, LocalDate.of(2022, 1, 15));
+		dao.insertCar(car);
+		
+		assertEquals(oldSize + 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, "e_car_engine"));
+	}
+	
+	@Test
+	void insertEngineCarTableValid() {
+		assertEquals(0, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car_engine", "id=109"));
+		CarEngine carEngine = new CarEngine(109, CarEngineType.of(2), 0, 680);
+		Car car = new Car(109, "Tesla", "Model Y", "Sedan", carEngine, LocalDate.of(2022, 1, 15));
+		dao.insertCar(car);
+		assertEquals(1, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car_engine", "id=109"));
+	}
+	
+	@Test
+	void insertDuplicateCar() {
+		CarEngine carEngine = new CarEngine(109, CarEngineType.of(2), 0, 680);
+		Car car = new Car(109, "Tesla", "Model Y", "Sedan", carEngine, LocalDate.of(2022, 1, 15));
+		dao.insertCar(car);
+		assertThrows(DatabaseException.class, ()-> {
+			dao.insertCar(car);
+		});
+	}
+	
+	@Test
+	void carBeforeUpdate() {
+		String whereCondition = "id=102 and make = 'Toyota' and model = 'Prius' and body_type=4";
+		int rowcount = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car", whereCondition);
+		assertEquals(0, rowcount);
+	}
+	
+	@Test
+	void carAfterUpdate() {
+		CarEngine carEngine = new CarEngine(102, CarEngineType.of(2), 0, 680);
+		Car car = new Car(102, "Toyota", "Prius", "Other", carEngine, LocalDate.of(2022, 1, 15));
+		String whereCondition = "id=102 and make = 'Toyota' and model = 'Prius' and body_type=4";
+		
+		dao.updateCar(car);
+		
+		int rowcount = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car", whereCondition);
+		assertEquals(1, rowcount);
+	}
+	
+	@Test
+	void carEngineBeforeUpdate() {
+		String whereCondition = "id=102 and engine_type = 3 and horsepower = 450";
+		int rowcount = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car_engine", whereCondition);
+		assertEquals(0, rowcount);
+	}
+	
+	@Test
+	void carEngineAfterUpdate() {
+		String whereCondition = "id=102 and engine_type = 3 and horsepower = 450";
+		CarEngine carEngine = new CarEngine(102, CarEngineType.of(3), 0, 450);
+		Car car = new Car(102, "Toyota", "Prius", "Other", carEngine, LocalDate.of(2022, 1, 15));
+		
+		dao.updateCar(car);
+	
+		int rowcount = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car_engine", whereCondition);
+		assertEquals(1, rowcount);
+	}
+	
+	@Test
+	void deleteCarTwice() {
+		dao.deleteCar(101);
+		assertThrows(DatabaseException.class, ()-> {
+			dao.deleteCar(101);
+		});
+	}
+	
+	@Test
+	void testDeleteCar()  {
+		int oldSize = countRowsInTable(jdbcTemplate, "e_car");
+		dao.deleteCar(101);
+		int newSize = countRowsInTable(jdbcTemplate, "e_car");
+		assertEquals(oldSize - 1, newSize);
+	}
+	
+	@Test
+	void testDeleteCarRow(){
+		dao.deleteCar(101);
+		int rowsWithDeletedId=JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car","id=101");
+		assertEquals(0,rowsWithDeletedId);
+
+	}
+	
+	@Test
+	void testDeleteCarEngine()  {
+		int oldSize = countRowsInTable(jdbcTemplate, "e_car_engine");
+		dao.deleteCar(101);
+		int newSize = countRowsInTable(jdbcTemplate, "e_car_engine");
+		assertEquals(oldSize - 1, newSize);
+	}
+	
+	@Test
+	void testDeleteCarEngineRow(){
+		dao.deleteCar(101);
+		int rowsWithDeletedId=JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car_engine","id=101");
+		assertEquals(0,rowsWithDeletedId);
+
+	}
+	
+	@Test
+    void testDeleteCar_WithoutEngine_Success() {
+        int id = 106;
+        int oldCarsSize =  JdbcTestUtils.countRowsInTable(jdbcTemplate, "e_car");
+        int oldCarEnginesSize =  JdbcTestUtils.countRowsInTable(jdbcTemplate, "e_car_engine");
+
+        dao.deleteCar(id);
+        
+        assertEquals(oldCarsSize - 1,  JdbcTestUtils.countRowsInTable(jdbcTemplate, "e_car"));
+        assertEquals(0,  JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car", "id = " + id));
+        assertEquals(oldCarEnginesSize,  JdbcTestUtils.countRowsInTable(jdbcTemplate, "e_car_engine"));
+        assertEquals(0,  JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car_engine", "id = " + id));
+    }
+	
+	@Test
+	void testDeleteCarNegativeId() {
+		int id = -101;
+		assertThrows(DatabaseException.class,()->dao.deleteCar(id));		
+	}
+	
+	@Test
+	void testInsertCar_ViolatingContraint() {
+		int id = 109;
+		assertEquals(0,JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car", "id =" + id));
+		assertEquals(0, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car_engine", "id=" + id));
+
+		Car newCar = new Car(id,"Aeromobil",null,CarBodyType.OTHER.getName(),
+				 		new CarEngine(id, CarEngineType.GASOLINE, 3.5f, 300),
+				 		LocalDate.of(2023, 1, 1));
+
+		assertThrows(DatabaseException.class,()->dao.insertCar(newCar));
+
+	}
+	
+	@Test
+	void updateCar_WithoutEngine_Success() {
+		int id = 101;
+		String conditionString = "make= 'Aeromobil' and model = 'Flying Car' and body_type=4";
+		String newString = "engine_type=1 and engine_size_l=3.5 and horsepower=300";
+
+		assertEquals(0,JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car", conditionString));
+		assertEquals(0, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car_engine",newString));
+		
+		Car newCar = new Car(id,"Aeromobil","Flying Car",CarBodyType.OTHER.getName(),
+				 		null,
+				 		LocalDate.of(2023, 1, 1));
+		dao.updateCar(newCar);
+		assertEquals(1,JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car", conditionString));
+		assertEquals(0, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "e_car_engine",newString));
+
+	}
+	
+	@Test
+	void updateCar_Engine_Failure() {
+		int id = 999;
+
+		Car newCar = new Car(id,"Aeromobil","Flying Car",CarBodyType.OTHER.getName(),
+				 		new CarEngine(id, CarEngineType.GASOLINE, 3.5f, 300),
+				 		LocalDate.of(2023, 1, 1));
+
+		assertThrows(DatabaseException.class, ()->dao.updateCar(newCar));
+
+	}
+
+}

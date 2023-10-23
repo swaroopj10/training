@@ -1,0 +1,69 @@
+package com.fidelity.freight;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
+	
+public class Sailor extends CrewMember {
+	
+	private String jobDescription;
+	private BigDecimal hourlyRate;
+	private int hoursWorked;
+	
+	public Sailor(String name, int id, int payDay, String jobDescription, BigDecimal hourlyRate, int hoursWorked) {
+		super(name, id, payDay);
+		if(jobDescription == null) {
+			throw new NullPointerException("Job Description cannot be null");
+		}
+		if(hourlyRate.compareTo(new BigDecimal("0"))<= 0)  {
+			throw new IllegalArgumentException("Hourly Rate cannot be zero or negative");
+		}
+		if(hoursWorked < 0)  {
+			throw new IllegalArgumentException("Hourly Rate cannot be zero or negative");
+		}
+		this.jobDescription = jobDescription;
+		this.hourlyRate = hourlyRate;
+		this.hoursWorked = hoursWorked;
+	}
+
+	@Override
+	public BigDecimal calculatePay(LocalDate currentDate) {
+		BigDecimal pay;
+		if(currentDate == null) {
+			throw new NullPointerException("Date cannot be null");
+		}
+		if(currentDate.getDayOfMonth() < payDay) {
+			return new BigDecimal("0");
+		}
+		pay = hourlyRate.multiply(new BigDecimal((currentDate.getDayOfMonth() - payDay) * hoursWorked));
+		return pay;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(hourlyRate, hoursWorked, jobDescription);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Sailor other = (Sailor) obj;
+		return Objects.equals(hourlyRate, other.hourlyRate) && hoursWorked == other.hoursWorked
+				&& Objects.equals(jobDescription, other.jobDescription);
+	}
+
+	@Override
+	public String toString() {
+		return "Sailor [jobDescription=" + jobDescription + ", hourlyRate=" + hourlyRate + ", hoursWorked="
+				+ hoursWorked + ", payDay=" + payDay + ", hashCode()=" + hashCode() + ", toString()=" + super.toString()
+				+ ", getClass()=" + getClass() + "]";
+	}
+}

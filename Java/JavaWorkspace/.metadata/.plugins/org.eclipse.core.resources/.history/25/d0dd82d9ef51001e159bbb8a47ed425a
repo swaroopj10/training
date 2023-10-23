@@ -1,0 +1,9 @@
+package com.project.tradewave;
+
+public class InvestmentPreferenceService {
+
+	public InvestmentPreferenceService() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

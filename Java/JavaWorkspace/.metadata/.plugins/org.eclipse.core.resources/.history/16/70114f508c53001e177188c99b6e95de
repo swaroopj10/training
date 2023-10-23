@@ -1,0 +1,33 @@
+package com.fidelity.integration;
+
+import java.util.List;
+
+import com.fidelity.model.Car;
+
+public class CarDaoImplementation implements CarDao {
+
+	@Override
+	public List<Car> getCars() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void insertCar(Car car) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updateCar(Car car) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deleteCar(int carId) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

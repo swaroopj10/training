@@ -1,0 +1,19 @@
+package com.fidelity.payroll;
+
+public class Employee {
+
+	protected String name;
+
+	public Employee(String name) {
+		this.name = name;
+	}
+
+	public double calculateMonthlyPayment() {
+		return 0.0;
+	}
+
+	public double calculateMonthlyPayment(double bonus) {
+		return 0.0;
+	}
+
+}

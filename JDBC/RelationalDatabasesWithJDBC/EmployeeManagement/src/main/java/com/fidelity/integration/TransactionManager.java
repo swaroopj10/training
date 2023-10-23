@@ -1,0 +1,48 @@
+package com.fidelity.integration;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class TransactionManager {
+	private DataSource dataSource;
+	private Connection connection;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	public TransactionManager(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+
+	public void startTransaction() {
+		try {
+			connection = dataSource.getConnection();
+			connection.setAutoCommit(false);
+		} catch (SQLException e) {
+			throw new DatabaseException("Unable to begin a transaction", e);
+		}
+	}
+
+	public void commitTransaction() {
+		try {
+			connection.commit();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logger.error("Cannot execute commit Transaction", e);
+			throw new DatabaseException("Unable to commit the transaction", e);
+		}
+	}
+
+	public void rollbackTransaction() {
+		try {
+			connection.rollback();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logger.error("Cannot execute rollback Transaction", e);
+			throw new DatabaseException("Unable to rollback the transaction", e);
+		}
+	}
+}
+

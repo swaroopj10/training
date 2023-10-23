@@ -1,0 +1,20 @@
+package com.fidelity.payroll;
+
+public class PartTimeEmployee {
+	String name;
+	double hourlyRate;
+	int hoursForMonth;
+	
+	public PartTimeEmployee(String name, double hourlyRate, int hoursForMonth) {
+		super();
+		this.name = name;
+		this.hourlyRate = hourlyRate;
+		this.hoursForMonth = hoursForMonth;
+	}
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

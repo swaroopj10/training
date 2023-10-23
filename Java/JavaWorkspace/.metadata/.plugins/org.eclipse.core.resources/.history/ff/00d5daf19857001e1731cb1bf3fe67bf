@@ -1,0 +1,13 @@
+package com.fidelity.integration;
+
+import java.util.List;
+
+import com.fidelity.model.Order;
+
+public interface OrderDao {
+    void createOrder(Order order);
+    void updateOrder(Order order);
+    void deleteOrder(String orderId);
+    Order getOrderById(String orderId);
+    List<Order> getAllOrders();
+}

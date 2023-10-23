@@ -1,0 +1,9 @@
+package com.fidelity.payroll;
+
+public class FullTimeEmployee {
+
+	public FullTimeEmployee() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

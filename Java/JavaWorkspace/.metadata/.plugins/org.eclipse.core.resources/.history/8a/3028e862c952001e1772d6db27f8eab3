@@ -1,0 +1,61 @@
+package com.fidelity.integration;
+
+import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fidelity.model.Employee;
+
+public class EmployeeDaoOracleImpl extends EmployeeDao {
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	public EmployeeDaoOracleImpl(DataSource datasource) {
+		super(datasource);
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public List<Employee> queryAllEmployees() {
+		String sql = "SELECT empno, ename, job, mgr, hiredate, sal, comm, deptno FROM emp";
+		List<Employee> depts = new ArrayList<>();
+		PreparedStatement statement = null;
+		Connection connection = dataSource.getConnection();
+		try {
+			statement = connection.prepareStatement(sql);
+		} catch (SQLException e) {
+			logger.error("Cannot execute SQL query for dept: {}", e);
+			throw new DatabaseException("Cannot execute SQL query for dept: ", e);
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close connection", e);
+				}
+			}
+			if (statement != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					logger.error("Cannot execute close connection", e);
+				}
+			}
+		}
+		return depts;
+	}
+
+	@Override
+	public Employee queryEmployeeById(int empNo) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

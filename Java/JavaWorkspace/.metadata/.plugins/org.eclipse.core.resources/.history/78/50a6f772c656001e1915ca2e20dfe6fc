@@ -1,0 +1,39 @@
+package com.fidelity.integration;
+
+import java.util.List;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fidelity.model.Client;
+
+public class ClientDaoImpl implements ClientDao {
+	
+	private DataSource dataSource;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	public ClientDaoImpl(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+
+	@Override
+	public List<Client> getClients() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void insertClient(Client client) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deleteClient(int clientId) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

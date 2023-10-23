@@ -1,0 +1,146 @@
+package com.fidelity.integration;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fidelity.model.Client;
+import com.fidelity.model.ClientRisk;
+
+public class ClientDaoImpl implements ClientDao {
+	
+	private DataSource dataSource;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	public ClientDaoImpl(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+	
+	private void handleDatabaseException(String message, SQLException e) {
+        e.printStackTrace();
+        logger.error(message, e);
+        throw new DatabaseException(message, e);
+    }
+
+    private void closeConnectionAndStatement(Connection connection, PreparedStatement statement) {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                logger.error("Cannot close connection", e);
+            }
+        }
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                logger.error("Cannot close statement", e);
+            }
+        }
+    }
+    
+    private List<Client> executeQuery(String sql, Object... params ) {
+		List<Client> clientList = new ArrayList<>();
+		Client client;
+		PreparedStatement statement = null;
+		Connection connection = null;
+
+		try {
+			connection = dataSource.getConnection();
+			statement = connection.prepareStatement(sql);
+
+			for (int i = 0; i < params.length; i++) {
+				statement.setObject(i + 1, params[i]);
+			}
+
+			ResultSet resultSet = statement.executeQuery();
+			
+			while (resultSet.next()) {
+				int clientId = resultSet.getInt("CLIENT_ID");
+				String clientName = resultSet.getString("CLIENT_NAME");
+				String risk = resultSet.getString("CLIENT_RISK");
+				ClientRisk clientRisk = ClientRisk.of(risk);
+				String workPhone = resultSet.getString("PHONE_NUMBER");
+				
+				client = new Client(clientId, clientName, clientRisk, workPhone);
+				clientList.add(client);
+			}
+
+		} catch (SQLException e) {
+			handleDatabaseException("Cannot execute SQL query", e);
+		} finally {
+			closeConnectionAndStatement(connection, statement);
+		}
+		return clientList;
+	}
+    
+    private void executeUpdate(String sql, Object... params) {
+        PreparedStatement statement = null;
+        Connection connection = null;
+        int rows;
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement(sql);
+            
+            for (int i = 0; i < params.length; i++) {
+                statement.setObject(i + 1, params[i]);
+            }
+            
+           rows = statement.executeUpdate();
+           if (rows == 0) {
+				throw new DatabaseException("there is no client with the given id ");
+			}
+        } catch (SQLException e) {
+            handleDatabaseException("Cannot execute SQL query", e);
+        } finally {
+            closeConnectionAndStatement(connection, statement);
+        }
+    }
+	
+	private void insertClientDetails(Client client) {
+		String sql = "INSERT INTO aa_client (client_id, client_name, client_risk) VALUES (?, ?, ?)";
+		String risk = client.getClientRisk().getCode();
+		executeUpdate(sql, 
+				client.getClientId(),
+				client.getClientName(),
+				risk);
+	}
+	
+	private void insertClientPhoneNumber(Client client) {
+		String sql = "INSERT INTO aa_client_phone (client_id, phone_number) VALUES (?, ?)";
+		executeUpdate(sql, 
+				client.getClientId(),
+				client.getWorkPhone());
+	}
+
+	@Override
+	public List<Client> getClients() {
+		String sql = "SELECT c.client_id, c.client_name, c.client_risk, p.phone_number FROM aa_client c LEFT JOIN aa_client_phone p ON c.client_id = p.client_id ORDER BY c.client_id, c.client_name";
+		return executeQuery(sql);
+	}
+
+	@Override
+	public void insertClient(Client client) {
+		Objects.requireNonNull(client);
+		insertClientDetails(client);
+		if (client.getWorkPhone() != null) {
+			insertClientPhoneNumber(client);
+		}
+	}
+
+	@Override
+	public void deleteClient(int clientId) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

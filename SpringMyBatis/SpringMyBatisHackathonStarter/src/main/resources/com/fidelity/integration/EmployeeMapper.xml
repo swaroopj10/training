@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fidelity.integration.TradeDaoMapper">
+ 	 <!-- Insert Statement for createOrder -->
+    <insert id="createOrder" useGeneratedKeys="true" keyProperty="order.orderId" keyColumn="orderId">
+        INSERT INTO cp_order(orderId, instrumentId, quantity, targetPrice, direction, clientId)
+        VALUES (#{orderId}, #{instrumentId}, #{quantity}, #{targetPrice}, #{direction}, #{clientId})
+    </insert>
+
+    <!-- Insert Statement for createTrade -->
+    <insert id="createTrade">
+        INSERT INTO cp_trade(tradeId, instrumentId, quantity, executionPrice, direction, clientId, orderId, cashValue)
+        VALUES (#{tradeId}, #{instrumentId}, #{quantity}, #{executionPrice}, #{direction}, #{clientId}, #{order.orderId}, #{cashValue})
+    </insert>
+
+    <!-- Select Statement for getTradeHistory -->
+    <select id="getTradeHistory" resultType="com.fidelity.business.Trade">
+        SELECT t.tradeid, t.instrumentid, t.quantity, t.executionprice, t.direction, t.clientid, o.orderid, t.cashvalue, o.targetprice
+        FROM cp_trade t
+        INNER JOIN cp_order o ON t.orderId = o.orderId
+        WHERE t.clientId = #{clientId}
+    </select>
+    
+    <!-- Select Statement for getPortfolio -->
+	<select id="getPortfolio" resultType="com.fidelity.business.Trade">
+	    SELECT t.tradeid, t.instrumentid, t.quantity, t.executionprice, t.direction, t.clientid, o.orderid, t.cashvalue, o.targetprice
+	    FROM cp_trade t
+	    INNER JOIN cp_order o ON t.orderId = o.orderId
+	    WHERE t.clientId = #{clientId}
+	</select>
+	
+	<!-- Select Statement for getBalanceAmount -->
+	<select id="getBalanceAmount" resultType="double">
+	    SELECT SUM(t.cashvalue) as balanceAmount
+	    FROM cp_trade t
+	    INNER JOIN cp_order o ON t.orderId = o.orderId
+	    WHERE t.clientId = #{clientId}
+	</select>
+	
+	<!-- Select Statement for getPortfolioWorth -->
+	<select id="getPortfolioWorth" resultType="double">
+	    SELECT SUM(t.cashvalue) as portfolioWorth
+	    FROM cp_trade t
+	    INNER JOIN cp_order o ON t.orderId = o.orderId
+	    WHERE t.clientId = #{clientId}
+	</select>
+</mapper>

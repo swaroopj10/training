@@ -1,0 +1,28 @@
+package com.fidelity.integration;
+
+import java.util.List;
+
+import javax.sql.DataSource;
+
+import com.fidelity.model.Employee;
+
+public class EmployeeDaoOracleImpl extends EmployeeDao {
+
+	public EmployeeDaoOracleImpl(DataSource datasource) {
+		super(datasource);
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public List<Employee> queryAllEmployees() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Employee queryEmployeeById(int empNo) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

@@ -1,0 +1,75 @@
+package com.fidelity.model;
+
+import java.util.Objects;
+
+public class Order {
+    @Override
+	public String toString() {
+		return "Order [instrumentId=" + instrumentId + ", quantity=" + quantity + ", targetPrice=" + targetPrice
+				+ ", direction=" + direction + ", clientId=" + clientId + ", orderId=" + orderId + ", hashCode()="
+				+ hashCode() + ", getInstrumentId()=" + getInstrumentId() + ", getQuantity()=" + getQuantity()
+				+ ", getTargetPrice()=" + getTargetPrice() + ", getDirection()=" + getDirection() + ", getClientId()="
+				+ getClientId() + ", getOrderId()=" + getOrderId() + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(clientId, direction, instrumentId, orderId, quantity, targetPrice);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Order other = (Order) obj;
+		return Objects.equals(clientId, other.clientId) && direction == other.direction
+				&& Objects.equals(instrumentId, other.instrumentId) && Objects.equals(orderId, other.orderId)
+				&& Double.doubleToLongBits(quantity) == Double.doubleToLongBits(other.quantity)
+				&& Double.doubleToLongBits(targetPrice) == Double.doubleToLongBits(other.targetPrice);
+	}
+
+	private String instrumentId;
+    private double quantity;
+    private double targetPrice;
+    private char direction;
+    private String clientId;
+    private String orderId;
+
+    public Order(String instrumentId, double quantity, double targetPrice, char direction, String clientId, String orderId) {
+        this.instrumentId = instrumentId;
+        this.quantity = quantity;
+        this.targetPrice = targetPrice;
+        this.direction = direction;
+        this.clientId = clientId;
+        this.orderId = orderId;
+    }
+
+    public String getInstrumentId() {
+        return instrumentId;
+    }
+
+    public double getQuantity() {
+        return quantity;
+    }
+
+    public double getTargetPrice() {
+        return targetPrice;
+    }
+
+    public char getDirection() {
+        return direction;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+}
+

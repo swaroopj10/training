@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+					       http://www.springframework.org/schema/context/spring-context.xsd">
+  
+    <description>PopupGreeter driven by annotations</description> 
+	<context:component-scan base-package="com.fidelity.greeter" />
+	<!-- TODO: add an element that tells Spring to scan for components
+	           in the package com.fidelity.greeter
+	     HINT: see slide 1-9 -->
+	<bean id="batmanVis" class="com.fidelity.greeter.AmarilloVisitor">
+	    <property name="name" value="Batman"/>
+	    <property name="greeting" value="I'm Batman"/>
+	</bean>
+	
+	<bean id="vis" class="com.fidelity.greeter.ArizonaVisitor">
+	    <property name="name" value="Brad"/>
+	    <property name="greeting" value="Best Intructor"/>
+	</bean>
+
+	<bean id="greeter" class="com.fidelity.greeter.PopupGreeter">
+	    <property name="visitor" ref="vis"/> 
+	</bean>
+</beans>
