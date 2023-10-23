@@ -1,0 +1,20 @@
+footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 0;
+}
+
+header {
+    font-size: xx-large;
+    font-weight: bolder;
+    text-align: center;
+    margin-top: 10px;
+    color: brown;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}

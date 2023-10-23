@@ -1,0 +1,35 @@
+<nav>
+    <button (click)="loadAllTrails()">Get All Trails</button>
+    <button (click)="loadTrailByFilter('name')">Get Trails by Name</button>
+    <button (click)="loadTrailByFilter('length')">Get Trails by Length</button>
+    <button (click)="loadTrailByFilter('time-to-complete')">Get Trails by Time to Complete</button>
+    <button (click)="loadTrailByFilter('driving-time')">Get Trails by Driving Time from Galway City</button>
+    <button (click)="loadTrailByFilter('difficulty')">Get Trails by Difficulty</button>
+</nav>
+<h2>Additional Filters</h2>
+<nav>
+    <button (click)="loadTrailByReverseOrder()">Get {{title}} Trails by Reverse Order</button>
+    <button (click)="loadTrailByTop()">Get Top 5 {{title}} Trails </button>
+</nav>
+<table id="trails">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Length</th>
+            <th>Time to Complete</th>
+            <th>Driving Time</th>
+            <th>Difficulty</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let trail of trailList">
+            <td>{{trail.name}}</td>
+            <td>{{trail.length}}</td>
+            <td>{{trail.timeToComplete}}</td>
+            <td>{{trail.drivingTime}}</td>
+            <td>{{trail.difficulty}}</td>
+            <td>{{trail.comments}}</td>
+        </tr>
+    </tbody>
+</table>

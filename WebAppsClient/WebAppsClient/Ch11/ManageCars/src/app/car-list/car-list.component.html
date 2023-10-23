@@ -1,0 +1,27 @@
+<h1>Cars List</h1>
+<nav>
+    <button (click)="loadAllCars()" id="getCars">Get All Cars</button>
+    <button (click)="loadCarsByFilter('price')" id="price">Get Cars by Price</button>
+    <button (click)="loadCarsByFilter('doors')" id="doors">Get Cars by Doors</button>
+    <button (click)="loadCarsByFilter('year')" id="year">Get Cars by Year</button>
+</nav>
+<table id="cars">
+    <thead>
+        <tr>
+            <th>Make</th>
+            <th>Model</th>
+            <th>Price</th>
+            <th>Doors</th>
+            <th>Year</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let car of cars">
+            <td>{{car.make}}</td>
+            <td>{{car.model}}</td>
+            <td>{{car.price}}</td>
+            <td>{{car.doors}}</td>
+            <td>{{car.year}}</td>
+        </tr>
+    </tbody>
+</table>
